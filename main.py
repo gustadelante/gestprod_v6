@@ -32,9 +32,9 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode(theme_preference)  # Configurar el tema
     page.appbar = create_appbar(page, save_theme_preference)  # Pasar la función para guardar la preferencia  
     page.title = "Producción Papelera Entre Ríos"
-    page.theme_mode = ft.ThemeMode.DARK  # Modo claro por defecto
+    page.theme_mode = ft.ThemeMode.LIGHT  # Modo claro por defecto
     page.padding = 20
-     
+    
     
     
     # Estado de la aplicación

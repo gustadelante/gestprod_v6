@@ -6,11 +6,22 @@ from utils.theme import switch_theme
 
 
 def producto_turno_view(page, state):
-    
+        
+    #print("New page size:", page.window.width, page.window.height)
+    # Establecer el tamaño y posición de la ventana
+    page.window.width = 750    
+    page.window.height = 800    
+    page.window.center()  # Esto centrará la ventana en la pantalla    
+    page.window.resizable = True 
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.MainAxisAlignment.CENTER
-    page.window_resizable = False
-    page.window.center()
+    page.scroll = True        
+    page.update()
+
+   
+    #print("New page size:", page.window.width, page.window.height)
+
+        
 
     """Vista para seleccionar calidad y turno."""
     def validate_and_navigate(e):
@@ -76,7 +87,7 @@ def producto_turno_view(page, state):
                 expand=True,
                 #margin=ft.margin.only(top=60),  # Margen superior = altura de la AppBar
                 alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                horizontal_alignment=ft.MainAxisAlignment,
             )            
         ],
     )

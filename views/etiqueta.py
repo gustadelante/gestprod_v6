@@ -6,9 +6,26 @@ from data.producto import bobina
 
 def etiqueta_view(page, state, db_conn):
 
-     # Ajuste del tamaño de la ventana
-    page.window_width = 800 #900
-    page.window_height = 750 #800
+    # Establecer el tamaño y posición de la ventana
+    page.window_width = 600
+    page.window_height = 800
+    page.window_center = True  # Esto centrará la ventana en la pantalla
+    page.window_resizable = True
+
+
+    
+    page.theme_mode = "light"
+    page.bgcolor = ft.colors.BLUE_GREY_800
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    #ft.MainAxisAlignment.CENTER
+    page.window_resizable = True
+    page.autoscroll = True
+    page.window.center()
+    page.update()        
+
+    
+    
 
     # Colores para modo claro y oscuro con verde oscuro predominante
     light_primary_color = ft.colors.GREEN
@@ -282,12 +299,12 @@ def etiqueta_view(page, state, db_conn):
                         border_radius=10,
                         bgcolor=ft.colors.GREEN_300,
                         alignment=ft.alignment.center,
+                        expand=True
                     )
 
                 ),
                                 
             ]
-
     )
 
 """
