@@ -3,6 +3,7 @@ from components.components import create_textbox, create_button
 from datetime import datetime
 from utils.imprimir import imprimir_y_guardar
 from data.producto import bobina
+import time
 
 def etiqueta_view(page, state, db_conn):
 
@@ -166,9 +167,106 @@ def etiqueta_view(page, state, db_conn):
         campo.focus()
         page.update()
 
+
     def handle_imprimir_y_guardar(nueva_bobina, sec):
-        bobina_nro = imprimir_y_guardar(db_conn, nueva_bobina)
-        set_sec_value(sec, bobina_nro)
+        resultado = imprimir_y_guardar(db_conn, nueva_bobina)        
+        datos_bobina = resultado["datos_bobina_dict"]
+        mensaje = datos_bobina["mensaje"]
+        nro_of = datos_bobina["nro_of"]
+        bobina_nro = datos_bobina["bobina_nro"]
+        bobina_izq = datos_bobina["bobina_izq"] #Guarda solo nro de bobina sin el sec    
+        peso_bobina = datos_bobina["peso_bobina"]
+
+        #print(f"mensaje: {mensaje}")
+        #print(f"Bobina: {nro_of, bobina_nro, bobina_izq, peso_bobina}")
+
+        # Crear el contenido del diálogo
+    
+        # Crear el contenido del diálogo
+        dialog_content = ft.Column(
+        controls=[
+            ft.Text(mensaje, size=20, weight="bold", color=ft.colors.GREEN_900),
+            ft.Divider(height=10, color=ft.colors.TRANSPARENT),  # Espaciador
+            ft.Text(f"Orden de Fabricación = {nro_of}", size=18, color=ft.colors.BLACK),
+            ft.Text(f"Bobina Nro = {bobina_nro}", size=18, color=ft.colors.BLACK),
+            ft.Text(f"Peso Bobina = {peso_bobina} kg", size=18, color=ft.colors.BLACK),
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        )
+
+        dialog_content = ft.Column(
+            controls=[
+                ft.Text(
+                    mensaje,
+                    size=20,
+                    weight="bold",
+                    color=ft.colors.GREEN_900,
+                    text_align=ft.TextAlign.CENTER,
+                ),
+                ft.Divider(height=10, color=ft.colors.TRANSPARENT),  # Espaciador
+                ft.Text(
+                    f"Orden de Fabricación = {nro_of}",
+                    size=18,
+                    color=ft.colors.BLACK,
+                    text_align=ft.TextAlign.CENTER,
+                ),
+                ft.Text(
+                    f"Bobina Nro = {bobina_nro}",
+                    size=18,
+                    color=ft.colors.BLACK,
+                    text_align=ft.TextAlign.CENTER,
+                ),
+                ft.Text(
+                    f"Peso Bobina = {peso_bobina} kg",
+                    size=18,
+                    color=ft.colors.BLACK,
+                    text_align=ft.TextAlign.CENTER,
+                ),
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            scroll=ft.ScrollMode.AUTO,  # Habilitar scroll si el contenido es muy largo
+            height=300,  # Limitar el alto del contenido
+        )
+
+        # Crear el diálogo con un diseño mejorado
+        dialog = ft.AlertDialog(
+            title=ft.Text(
+                "Información de la Bobina",
+                size=22,
+                weight="bold",
+                color=ft.colors.GREEN_900,
+                text_align=ft.TextAlign.CENTER,
+            ),
+            content=dialog_content,
+            modal=False,  # Permitir interacción con la vista principal
+            shape=ft.RoundedRectangleBorder(radius=15),  # Bordes más redondeados
+            bgcolor=ft.colors.WHITE,  # Fondo blanco
+            content_padding=20,  # Espaciado interno
+            actions_alignment=ft.MainAxisAlignment.CENTER,  # Centrar acciones
+            inset_padding=ft.padding.symmetric(horizontal=20, vertical=10),  # Espaciado externo
+        )
+
+
+        # Agregar el diálogo al overlay de la página
+        page.overlay.clear()  # Limpiar cualquier overlay previo
+        page.overlay.append(dialog)  # Agregar el diálogo al overlay
+        dialog.open = True  # Abrir el diálogo
+        page.update()  # Actualizar la página para mostrar el diálogo
+
+        # Función para cerrar el diálogo después de 5 segundos
+        def cerrar_dialogo():            
+            time.sleep(5)  # Esperar 5 segundos
+            page.overlay.remove(dialog)  # Eliminar el diálogo del overlay
+            print("Diálogo eliminado del overlay")
+            page.update()  # Actualizar la página            
+
+        cerrar_dialogo()
+
+        # Incrementar el valor de secuencia        
+        set_sec_value(sec, bobina_izq)
+        
 
     def imprimir_datos(e):
         old_sec = sec.value
@@ -301,10 +399,10 @@ def etiqueta_view(page, state, db_conn):
                         alignment=ft.alignment.center,
                         expand=True
                     )
-
+            
                 ),
                                 
-            ]
+            ]            
     )
 
 """

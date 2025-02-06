@@ -69,7 +69,20 @@ def insert_bobina(conn, nueva_bobina):
         ))
         db_conn.commit()
         db_conn.close()
-        print("Datos insertados correctamente.")
+        print("Datos insertados correctamente.")        
+        mensaje = "Datos insertados correctamente."
+        nro_bobina_completo = str(nueva_bobina.bobina_nro) + str(nueva_bobina.sec)
+        datos_bobina = (mensaje, str(nueva_bobina.orden_fab), str(nro_bobina_completo), str(nueva_bobina.bobina_nro), str(nueva_bobina.peso))
+        if datos_bobina:
+            # Crear diccionario con los datos de la bobina
+            nombres_columnas = ["mensaje", "nro_of", "nro_bobina", "bobina_izq", "peso_bobina"]  # Nombre de las columnas
+            datos_bobina_dict = dict(zip(nombres_columnas, datos_bobina))
+        else:
+            datos_bobina_dict = None
+
+
+        #return mensaje, datos_bobina_dict
+        return datos_bobina_dict
     except Error as e:
         print(f"Error al insertar datos: {e}")
 
@@ -99,6 +112,17 @@ def update_bobina(conn, nueva_bobina):
         ))
         db_conn.commit()
         db_conn.close()
+        mensaje = "Datos actualizados correctamente."
+        nro_bobina_completo = str(nueva_bobina.bobina_nro) + str(nueva_bobina.sec)
+        datos_bobina = (mensaje, str(nueva_bobina.orden_fab), str(nro_bobina_completo), str(nueva_bobina.bobina_nro), str(nueva_bobina.peso))
+        if datos_bobina:
+            # Crear diccionario con los datos de la bobina
+            nombres_columnas = ["mensaje", "nro_of", "nro_bobina", "bobina_izq", "peso_bobina"]  # Nombre de las columnas
+            datos_bobina_dict = dict(zip(nombres_columnas, datos_bobina))
+        else:
+            datos_bobina_dict = None
+        
+        return datos_bobina_dict
     except Error as e:
         print(f"Error al insertar datos: {e}")
 

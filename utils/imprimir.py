@@ -74,9 +74,38 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
 
     # Check if bobina exists in the database and insert or update accordingly
     if bobina_exists(db_conn, nueva_bobina):
-        update_bobina(db_conn, nueva_bobina)
+        res = update_bobina(db_conn, nueva_bobina)        
     else:
-        insert_bobina(db_conn, nueva_bobina)
+        res = insert_bobina(db_conn, nueva_bobina)        
+    
 
-    # Return bobina_nro for further processing
-    return nueva_bobina.bobina_nro
+    try:
+        # Lógica para imprimir y guardar
+        # ...
+        resultado = {            
+            "datos_bobina_dict": {
+                "mensaje": res["mensaje"],
+                "nro_of": res["nro_of"],
+                "bobina_nro": res["nro_bobina"],
+                "bobina_izq": res["bobina_izq"],
+                "peso_bobina": res["peso_bobina"],
+                # Otros datos de la bobina
+            }
+        }
+    except Exception as e:
+        print(f"Error al imprimir y guardar: {e}")
+        resultado = {
+            "mensaje": "Error al imprimir y guardar",
+            "datos_bobina_dict": {
+                "bobina_nro": nueva_bobina.bobina_nro,
+                # Otros datos de la bobina
+            }
+        }
+
+    return resultado    
+    #return nueva_bobina.bobina_nro, resultado
+
+
+   # return nueva_bobina.bobina_nro, res
+
+
