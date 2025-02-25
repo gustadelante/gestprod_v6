@@ -8,24 +8,18 @@ import time
 def etiqueta_view(page, state, db_conn):
 
     # Establecer el tamaño y posición de la ventana
-    page.window_width = 600
-    page.window_height = 800
-    page.window_center = True  # Esto centrará la ventana en la pantalla
-    page.window_resizable = True
-
-
-    
-    page.theme_mode = "light"
-    page.bgcolor = ft.colors.BLUE_GREY_800
+    page.window.width = 700
+    page.window.height = 800
+    page.window.center()  # centra la ventana en la pantalla
+    page.window.resizable = True        
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    #ft.MainAxisAlignment.CENTER
-    page.window_resizable = True
-    page.autoscroll = True
-    page.window.center()
+    page.theme_mode = "light"
+    page.bgcolor = ft.colors.BLUE_GREY_800    
+    page.autoscroll = True    
     page.update()        
 
-    
+    #print(page.horizontal_alignment, page.vertical_alignment)
     
 
     # Colores para modo claro y oscuro con verde oscuro predominante
@@ -230,7 +224,8 @@ def etiqueta_view(page, state, db_conn):
             height=300,  # Limitar el alto del contenido
         )
 
-        # Crear el diálogo con un diseño mejorado
+        # Crear el diálogo
+        """ 
         dialog = ft.AlertDialog(
             title=ft.Text(
                 "Información de la Bobina",
@@ -248,7 +243,7 @@ def etiqueta_view(page, state, db_conn):
             inset_padding=ft.padding.symmetric(horizontal=20, vertical=10),  # Espaciado externo
         )
 
-
+        
         # Agregar el diálogo al overlay de la página
         page.overlay.clear()  # Limpiar cualquier overlay previo
         page.overlay.append(dialog)  # Agregar el diálogo al overlay
@@ -263,7 +258,7 @@ def etiqueta_view(page, state, db_conn):
             page.update()  # Actualizar la página            
 
         cerrar_dialogo()
-
+        """
         # Incrementar el valor de secuencia        
         set_sec_value(sec, bobina_izq)
         
