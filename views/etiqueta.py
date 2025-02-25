@@ -177,6 +177,7 @@ def etiqueta_view(page, state, db_conn):
         # Crear el contenido del diálogo
     
         # Crear el contenido del diálogo
+        """
         dialog_content = ft.Column(
         controls=[
             ft.Text(mensaje, size=20, weight="bold", color=ft.colors.GREEN_900),
@@ -188,7 +189,8 @@ def etiqueta_view(page, state, db_conn):
         alignment=ft.MainAxisAlignment.CENTER,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
-
+        """
+        
         dialog_content = ft.Column(
             controls=[
                 ft.Text(
