@@ -25,8 +25,7 @@ def save_theme_preference(theme_mode):
 
 def main(page: ft.Page):
        
-    # Configuración de la página
-
+    # Configuración de la página    
     # Cargar la preferencia del tema al iniciar la aplicación
     theme_preference = load_theme_preference()
     page.theme_mode = ft.ThemeMode(theme_preference)  # Configurar el tema

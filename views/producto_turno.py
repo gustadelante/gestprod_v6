@@ -15,7 +15,8 @@ def producto_turno_view(page, state):
     page.window.resizable = True 
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.MainAxisAlignment.CENTER
-    page.scroll = True        
+    page.scroll = True
+    page.expand = True        
     page.update()
 
    
