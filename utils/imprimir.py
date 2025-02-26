@@ -3,6 +3,17 @@ import openpyxl
 import os
 from data.database import init_db, insert_bobina, update_bobina, bobina_exists, get_max_sec
 
+def calcular_metros(peso, gramaje, ancho):
+    try:
+        peso = float(peso)
+        gramaje = float(gramaje)
+        ancho = float(ancho)
+        metros = (100000 * peso) / (gramaje * ancho)
+        return round(metros)
+    except ValueError as e:
+        print(f"Error al calcular metros: {e}")
+        return None
+
 
 def imprimir_y_guardar(db_conn, nueva_bobina):
     init_db()
@@ -11,16 +22,23 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
     from reportlab.lib.pagesizes import A4
     from reportlab.pdfgen import canvas
 
+
+    #calcula los metros
+    metros = calcular_metros(nueva_bobina.peso, nueva_bobina.gramaje, nueva_bobina.ancho)
+    if metros is not None:
+        print(f"Metros: {metros}")
+
+    
     c = canvas.Canvas("print_output.pdf", pagesize=A4)
     width, height = A4
 
     # Definir las coordenadas y el tamaño de la letra
-    y = height - 40  # Coordenada Y inicial
-    line_height = 50  # Altura de cada línea
-    x_left = 100  # Coordenada X para la primera columna
+    y = height - 281  # Coordenada Y inicial
+    line_height = 110  # Altura de cada línea
+    x_left = 72  # Coordenada X para la primera columna
     x_right = 300 + 28.35  # Coordenada X para la segunda columna (1 cm = 28.35 points)
 
-    c.setFont("Helvetica", 40)
+    c.setFont("Helvetica-Bold", 45)
     c.drawString(x_left, y, f"{nueva_bobina.ancho}")
     c.drawString(x_right, y, f"{nueva_bobina.diametro}")
     y -= line_height
@@ -32,16 +50,26 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
     y -= line_height
     c.setFont("Helvetica", 26)
     c.drawString(x_left, y, f"{nueva_bobina.fecha}")
-    c.setFont("Helvetica", 40)
+    c.setFont("Helvetica-Bold", 40)
     c.drawString(x_right, y, f"{nueva_bobina.turno}")
     y -= line_height
-    c.drawString(x_left, y, f"{nueva_bobina.calidad[3:]}")
+    y -= line_height        
+    c.setFont("Helvetica", 18)    
+    c.drawString((x_left + 99.22), (y+3), f"{metros} Metros Lineales Aprox.")
+    print(f"valor y: {y} ")
+    #Metros 
+    #txt_metros.Text = Convert.ToString((100000 * Convert.ToInt32(txt_peso.Text) / ((Convert.ToInt32(txt_gramaje.Text) * (Convert.ToDecimal(txt_ancho.Text, new CultureInfo("es-ES")))))));
+    #txt_metros.Text = 
+    # ((100000 * Convert.ToInt32(txt_peso.Text) / ((Convert.ToInt32(txt_gramaje.Text) * (Convert.ToDecimal(txt_ancho.Text, new CultureInfo("es-ES")))))));
 
     c.showPage()
     c.save()
 
     # Enviar el archivo PDF directamente a la impresora en Windows
-    os.system(f'start /min "" "print_output.pdf" /p')
+    #os.system(f'start /min "" "print_output.pdf" /p') # Abre el pdf y lo deja en pantalla   
+    os.startfile("print_output.pdf", "print")  
+    
+    
 
     # Guardar los valores en un archivo Excel
     file_path = "nueva_bobina.xlsx"

@@ -162,6 +162,8 @@ def etiqueta_view(page, state, db_conn):
         page.update()
 
 
+
+
     def handle_imprimir_y_guardar(nueva_bobina, sec):
         resultado = imprimir_y_guardar(db_conn, nueva_bobina)        
         datos_bobina = resultado["datos_bobina_dict"]
@@ -190,7 +192,7 @@ def etiqueta_view(page, state, db_conn):
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
         """
-        
+
         dialog_content = ft.Column(
             controls=[
                 ft.Text(
