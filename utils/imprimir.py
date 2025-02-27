@@ -2,6 +2,8 @@ import flet as ft
 import openpyxl
 import os
 from data.database import init_db, insert_bobina, update_bobina, bobina_exists, get_max_sec
+import qrcode
+from PIL import Image
 
 def calcular_metros(peso, gramaje, ancho):
     try:
@@ -12,6 +14,19 @@ def calcular_metros(peso, gramaje, ancho):
         return round(metros)
     except ValueError as e:
         print(f"Error al calcular metros: {e}")
+        return None
+
+def genera_qr(bobina):
+    try:
+
+        qr = qrcode.QRCode(version=3, box_size=20, border=10, error_correction=qrcode.constants.ERROR_CORRECT_H)
+        qr.add_data(bobina)
+        qr.make(fit=True)
+        img = qr.make_image()                
+        img.save("qr.png") 
+
+    except:
+        print(f"Error al generar QR")
         return None
 
 
@@ -31,6 +46,21 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
     
     c = canvas.Canvas("print_output.pdf", pagesize=A4)
     width, height = A4
+
+    #genera QR
+    genera_qr(f"{nueva_bobina.bobina_nro}{nueva_bobina.sec}")
+    #aplica el QR en coordenadas
+    img_path = "qr.png"
+    if os.path.exists(img_path):
+        image = Image.open(img_path)
+        #x_pos = x_right -200 #pos horizontal
+        #y_pos = y - 100 #pos vertical
+        #image.x = 100
+        #image.y = 100
+        #c.insert_image(image)
+        #c.drawImage(img_path,480,140,width=90,height=90,mask='auto')
+        
+
 
     # Definir las coordenadas y el tamaño de la letra
     y = height - 281  # Coordenada Y inicial
@@ -56,7 +86,10 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
     y -= line_height        
     c.setFont("Helvetica", 18)    
     c.drawString((x_left + 99.22), (y+3), f"{metros} Metros Lineales Aprox.")
-    print(f"valor y: {y} ")
+    c.drawImage(img_path,(x_left + 414.22), (y+96),width=90,height=90,mask='auto')
+
+    #c.drawString((x_left + 150.22), (y+3),  f"{metros} Metros Lineales Aprox.")
+
     #Metros 
     #txt_metros.Text = Convert.ToString((100000 * Convert.ToInt32(txt_peso.Text) / ((Convert.ToInt32(txt_gramaje.Text) * (Convert.ToDecimal(txt_ancho.Text, new CultureInfo("es-ES")))))));
     #txt_metros.Text = 
