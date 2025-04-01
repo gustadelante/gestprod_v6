@@ -48,7 +48,7 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
     width, height = A4
 
     #genera QR
-    genera_qr(f"{nueva_bobina.bobina_nro}{nueva_bobina.sec}")
+    genera_qr(f"{nueva_bobina.bobina_nro}/{nueva_bobina.sec}-{nueva_bobina.peso}")
     #aplica el QR en coordenadas
     img_path = "qr.png"
     if os.path.exists(img_path):
@@ -75,7 +75,7 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
     c.drawString(x_left, y, f"{nueva_bobina.gramaje}")
     c.drawString(x_right, y, f"{nueva_bobina.peso}")
     y -= line_height
-    c.drawString(x_left, y, f"{nueva_bobina.bobina_nro}{nueva_bobina.sec}")
+    c.drawString(x_left, y, f"{nueva_bobina.bobina_nro}/{nueva_bobina.sec}")
     c.drawString(x_right, y, f"{nueva_bobina.orden_fab}")
     y -= line_height
     c.setFont("Helvetica", 26)
@@ -86,7 +86,7 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
     y -= line_height        
     c.setFont("Helvetica", 18)    
     c.drawString((x_left + 99.22), (y+3), f"{metros} Metros Lineales Aprox.")
-    c.drawImage(img_path,(x_left + 414.22), (y+96),width=90,height=90,mask='auto')
+    c.drawImage(img_path,(x_left + 369.22), (y+72),width=144,height=144,mask='auto')
 
     #c.drawString((x_left + 150.22), (y+3),  f"{metros} Metros Lineales Aprox.")
 

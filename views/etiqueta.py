@@ -162,6 +162,20 @@ def etiqueta_view(page, state, db_conn):
         page.update()
 
 
+    # Modificar el campo Bobina Nº para agregar el evento on_change
+    bobina_num = create_text_field(
+    "BOBINA Nº",
+    lambda e: on_bobina_num_change(e),  # Llamar a la función cuando cambie el valor
+    page.theme_mode
+    )
+
+    # Función para manejar el cambio en el campo Bobina Nº
+    def on_bobina_num_change(e):
+        # Cambiar el valor del campo Sec a 1
+        sec.value = "1"
+        sec.update()  # Actualizar el campo Sec para reflejar el cambio
+        page.update()
+
 
 
     def handle_imprimir_y_guardar(nueva_bobina, sec):
