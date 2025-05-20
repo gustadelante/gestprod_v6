@@ -115,7 +115,7 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
         # Agregar encabezados si es un nuevo archivo
         sheet.append([
             "Ancho", "Diámetro", "Gramaje", "Peso", "Bobina Nro", "Sec", 
-            "Orden de Fabricación", "Fecha", "Turno", "CodCal", "DescCal"
+            "Orden de Fabricación", "Fecha", "Turno", "CodProd", "DescProd"
         ])
 
     sheet.append([
@@ -128,8 +128,8 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
         nueva_bobina.orden_fab,
         nueva_bobina.fecha,
         nueva_bobina.turno,
-        nueva_bobina.calidad[:2],  # codcal
-        nueva_bobina.calidad[3:],  # solo desc de cal
+        nueva_bobina.calidad[:2],  # codprod
+        nueva_bobina.calidad[3:],  # descprod
     ])
     workbook.save(file_path)
 

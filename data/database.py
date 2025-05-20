@@ -35,9 +35,29 @@ def create_table(conn):
                 sec TEXT,                       
                 of TEXT NOT NULL,
                 fecha TEXT NOT NULL,
-                codcal TEXT,
-                desccal TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                codprod TEXT,
+                descprod TEXT,
+                tipo_mov TEXT DEFAULT 'ALTA',
+                alistamiento TEXT DEFAULT '01',
+                calidad TEXT,
+                observaciones TEXT,
+                obs TEXT,
+                tipomovimiento TEXT DEFAULT '006',
+                deposito TEXT DEFAULT '01',
+                codigoDeProducto TEXT,
+                primeraUnDeMedida TEXT DEFAULT 'KG',
+                CantidadEnPrimeraUdM TEXT DEFAULT '00000000000001',
+                lote TEXT,
+                fechaValidezLote TEXT,
+                fechaElaboracion TEXT,
+                nroOT TEXT,
+                codclie TEXT DEFAULT '000011',
+                cuentacontable TEXT DEFAULT '1401010000',
+                metros TEXT,
+                producto TEXT,
+                segundaUnDeMedida TEXT,
+                CantidadEnSegunda TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP 
             )
         ''')
         conn.commit()
@@ -52,7 +72,7 @@ def insert_bobina(conn, nueva_bobina):
     try:
         cursor = db_conn.cursor()
         cursor.execute('''
-             INSERT INTO bobina (ancho, diametro, gramaje, peso, bobina_num, sec, of, fecha, turno, codcal, desccal)
+             INSERT INTO bobina (ancho, diametro, gramaje, peso, bobina_num, sec, of, fecha, turno, codprod, descprod)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
         nueva_bobina.ancho,
@@ -65,7 +85,7 @@ def insert_bobina(conn, nueva_bobina):
         nueva_bobina.fecha,
         nueva_bobina.turno,
         nueva_bobina.calidad[:2],  # codcal
-        nueva_bobina.calidad[3:]   # desccal
+        nueva_bobina.calidad[3:]   # descprod
         ))
         db_conn.commit()
         db_conn.close()
@@ -95,7 +115,7 @@ def update_bobina(conn, nueva_bobina):
         cursor = db_conn.cursor()    
         cursor.execute('''
             UPDATE bobina
-            SET ancho = ?, diametro = ?, gramaje = ?, peso = ?, of = ?, fecha = ?, turno = ?, codcal = ?, desccal = ?
+            SET ancho = ?, diametro = ?, gramaje = ?, peso = ?, of = ?, fecha = ?, turno = ?, codprod = ?, descprod = ?
             WHERE bobina_num = ? AND sec = ?
         ''', (
             nueva_bobina.ancho,
@@ -105,8 +125,8 @@ def update_bobina(conn, nueva_bobina):
             nueva_bobina.orden_fab,
             nueva_bobina.fecha,
             nueva_bobina.turno,
-            nueva_bobina.calidad[:2],  # codcal
-            nueva_bobina.calidad[3:],  # desccal
+            nueva_bobina.calidad[:2],  # codprod
+            nueva_bobina.calidad[3:],  # descprod
             nueva_bobina.bobina_nro,
             nueva_bobina.sec
         ))
