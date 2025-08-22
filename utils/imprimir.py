@@ -66,6 +66,49 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
     # Enviar los datos a la impresora
     from reportlab.lib.pagesizes import A4
     from reportlab.pdfgen import canvas
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    
+    # Registrar fuentes con trazo más ancho (si existen)
+    try:
+        # Intentar registrar Impact que tiene un trazo muy grueso
+        pdfmetrics.registerFont(TTFont('Impact', 'impact.ttf'))
+        fuente_gruesa = 'Impact'
+    except Exception:
+        try:
+            # Intentar registrar Arial Black que tiene un trazo más grueso
+            pdfmetrics.registerFont(TTFont('ArialBlack', 'arialbd.ttf'))
+            fuente_gruesa = 'ArialBlack'
+        except Exception:
+            # Si no se puede registrar, usar Helvetica-Bold
+            fuente_gruesa = 'Helvetica-Bold'
+    
+    # Función para dibujar texto con trazo extra grueso y espaciado entre caracteres
+    def draw_bold_text(canvas, x, y, text, font_name, font_size, offset=0.5, char_spacing=1.5):
+        """Dibuja texto con un trazo extra grueso mediante múltiples impresiones y espaciado entre caracteres."""
+        # Guardar estado actual
+        canvas.saveState()
+        canvas.setFont(font_name, font_size)
+        
+        # Calcular ancho de cada carácter para el espaciado
+        char_widths = [canvas.stringWidth(char, font_name, font_size) for char in text]
+        
+        # Función para dibujar el texto completo con espaciado
+        def draw_spaced_text(x_pos, y_pos):
+            current_x = x_pos
+            for i, char in enumerate(text):
+                canvas.drawString(current_x, y_pos, char)
+                current_x += char_widths[i] * char_spacing  # Aplicar espaciado entre caracteres
+        
+        # Dibujar el texto varias veces con pequeños desplazamientos para simular trazo más grueso
+        draw_spaced_text(x-offset, y)
+        draw_spaced_text(x+offset, y)
+        draw_spaced_text(x, y-offset)
+        draw_spaced_text(x, y+offset)
+        draw_spaced_text(x, y)  # Texto central
+        
+        # Restaurar estado
+        canvas.restoreState()
     
     #calcula los metros
     metros = calcular_metros(nueva_bobina.peso, nueva_bobina.gramaje, nueva_bobina.ancho)
@@ -91,44 +134,74 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
             img_path = None
         
         # Definir las coordenadas y el tamaño de la letra
-        y = height - 281  # Coordenada Y inicial
+        y = height - 281 + 28.35  # Coordenada Y inicial (subida 1 cm = 28.35 points)
         line_height = 110  # Altura de cada línea
         x_left = 72  # Coordenada X para la primera columna
         x_right = 300 + 28.35  # Coordenada X para la segunda columna (1 cm = 28.35 points)
         
-        c.setFont("Helvetica-Bold", 45)
-        c.drawString(x_left, y, f"{nueva_bobina.ancho}")
-        c.drawString(x_right, y, f"{nueva_bobina.diametro}")
+        # Primera fila: ancho y diámetro (bajada 0.5 cm = 14.175 points)
+        # Usar técnica de trazo extra grueso
+        c.setFont("Helvetica", 57)
+        c.drawString(x_left - 28.35, y - 14.175 - 28.35 + 14.175 + 8.505, f"{nueva_bobina.ancho}")  # Trazo normal, bajado 0,2 cm
+        # Línea eliminada - era una duplicación
+        c.setFont("Helvetica", 57)
+        c.drawString(x_right, y - 14.175 - 28.35 + 14.175 + 8.505, f"{nueva_bobina.diametro}")  # Trazo normal, bajado 0,2 cm
+        
+        # Segunda fila: gramaje y peso (posición original)
         y -= line_height
-        c.drawString(x_left, y, f"{nueva_bobina.gramaje}")
-        c.drawString(x_right, y, f"{nueva_bobina.peso}")
+        # Usar técnica de trazo extra grueso
+        c.setFont("Helvetica", 57)
+        c.drawString(x_left - 28.35, y - 28.35 + 14.175, f"{nueva_bobina.gramaje}")  # Trazo normal, bajado 0,5 cm
+        draw_bold_text(c, x_right, y - 28.35 + 14.175, f"{nueva_bobina.peso}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 0,5 cm
         y -= line_height
-        c.drawString(x_left, y, f"{nueva_bobina.bobina_nro}/{nueva_bobina.sec}")
-        c.drawString(x_right, y, f"{nueva_bobina.orden_fab}")
+        # Usar técnica de trazo extra grueso
+        draw_bold_text(c, x_left - 28.35, y - 28.35 + 14.175, f"{nueva_bobina.bobina_nro}/{nueva_bobina.sec}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Movido 1 cm a la izquierda, bajado 0,5 cm
+        draw_bold_text(c, x_right, y - 28.35 + 14.175, f"{nueva_bobina.orden_fab}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 0,5 cm
         y -= line_height
+        # Subir 1 cm y bajar 0.5 cm la fila de fecha/turno
         c.setFont("Helvetica", 26)
-        c.drawString(x_left, y, f"{nueva_bobina.fecha}")
-        c.setFont("Helvetica-Bold", 40)
-        c.drawString(x_right, y, f"{nueva_bobina.turno}")
+        c.drawString(x_left, y + 28.35 - 14.175, f"{nueva_bobina.fecha}")
+        # Usar técnica de trazo extra grueso para el turno
+        c.setFont("Helvetica", 40)
+        c.drawString(x_right, y + 28.35 - 14.175, f"{nueva_bobina.turno}")  # Trazo normal
         y -= line_height
         y -= line_height        
         c.setFont("Helvetica", 18)    
-        c.drawString((x_left + 99.22), (y+3), f"{metros} Metros Lineales Aprox.")
+        c.drawString((x_left + 99.22 + 28.35), (y+3) + 28.35 + 28.35 - 14.175, f"{metros} Metros Lineales Aprox.")  # Bajado 0.5 cm (14.175 points)
         
-        # Dibujar QR si existe
+        # Dibujar QR si existe (también subido 1 cm)
         if img_path and os.path.exists(img_path):
-            c.drawImage(img_path, (x_left + 369.22), (y+72), width=144, height=144, mask='auto')
+            c.drawImage(img_path, (x_left + 369.22), (y+72) + 28.35, width=144, height=144, mask='auto')
         
         c.showPage()
         c.save()
         
         # Enviar el archivo PDF directamente a la impresora en Windows
         try:
-            os.startfile(pdf_path, "print")
+            # Asegurar que el archivo existe antes de intentar imprimirlo
+            if os.path.exists(pdf_path):
+                print(f"Enviando a imprimir: {pdf_path}")
+                # Usar subprocess para mayor control y mejor manejo de errores
+                import subprocess
+                subprocess.run(["powershell", "Start-Process", "-FilePath", pdf_path, "-Verb", "Print"], 
+                               check=True, capture_output=True)
+                print("Comando de impresión enviado correctamente")
+            else:
+                print(f"Error: El archivo PDF no existe en la ruta: {pdf_path}")
+                resultado["mensaje"] = f"Error: El archivo PDF no existe en la ruta: {pdf_path}"
+                resultado["exito"] = False
         except Exception as e:
             print(f"Error al imprimir: {e}")
             resultado["mensaje"] = f"Advertencia: No se pudo imprimir. {str(e)}"
             resultado["exito"] = False
+            
+            # Intento alternativo con os.startfile si subprocess falla
+            try:
+                print("Intentando método alternativo de impresión...")
+                os.startfile(pdf_path, "print")
+                print("Método alternativo de impresión ejecutado")
+            except Exception as e2:
+                print(f"Error en método alternativo: {e2}")
         
         # Guardar los valores en un archivo Excel
         try:
