@@ -55,8 +55,8 @@ def create_table(conn):
                 cuentacontable TEXT DEFAULT '1401010000',
                 metros TEXT,
                 producto TEXT,
-                segundaUnDeMedida TEXT,
-                CantidadEnSegunda TEXT,
+                segundaUnDeMedida TEXT DEFAULT 'UN',
+                CantidadEnSegunda TEXT DEFAULT '1',
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP 
             )
         ''')

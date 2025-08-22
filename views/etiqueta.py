@@ -7,17 +7,8 @@ import time
 
 def etiqueta_view(page, state, db_conn):
 
-    # Establecer el tamaño y posición de la ventana
-    page.window.width = 700
-    page.window.height = 800
-    page.window.center()  # centra la ventana en la pantalla
-    page.window.resizable = True        
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.theme_mode = "light"
-    page.bgcolor = ft.colors.BLUE_GREY_800    
-    page.autoscroll = True    
-    page.update()        
+    # La configuración de la ventana y propiedades globales de la página
+    # se manejan en main.py para evitar inconsistencias entre vistas.
 
     #print(page.horizontal_alignment, page.vertical_alignment)
     
@@ -47,6 +38,11 @@ def etiqueta_view(page, state, db_conn):
             e.control.error_text = "Número no válido o demasiado largo"
         else:
             e.control.error_text = ""
+            # Si el campo que cambió es el peso, actualizar la fecha
+            if e.control == peso:
+                now = datetime.now()
+                fecha_container.value = now.strftime("%Y-%m-%d %H:%M")
+                fecha_container.update()
         page.update()
 
     def validate_int(e):

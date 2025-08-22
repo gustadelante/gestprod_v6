@@ -4,24 +4,8 @@ from components.appbar import create_appbar  # Importar la AppBar
 from utils.theme import switch_theme
 
 def producto_turno_view(page, state):
-    # Establecer el tamaño y posición de la ventana
-    page.window.width = 700
-    page.window.height = 800
-    page.window.center()  # centra la ventana en la pantalla
-    page.window.resizable = True        
-    #page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    #page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.theme_mode = "light"
-    page.bgcolor = ft.colors.BLUE_GREY_800    
-    page.autoscroll = True
-    #page.scroll = True
-    #page.expand = True        
-    page.update()
-    print(page.horizontal_alignment, page.vertical_alignment)
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.update()
-    print(page.horizontal_alignment, page.vertical_alignment)
+    # La configuración de ventana y propiedades globales de la página
+    # se manejan en main.py para evitar inconsistencias entre vistas.
 
     """Vista para seleccionar calidad y turno."""
     def validate_and_navigate(e):
@@ -69,7 +53,7 @@ def producto_turno_view(page, state):
     titulo = ft.Text(
         "Seleccione Calidad / Turno",
         color=ft.colors.GREEN_900,
-        size=24,
+        size=20,  # Reducir el tamaño del texto
         weight="bold",
         text_align=ft.TextAlign.CENTER
     )
@@ -93,13 +77,14 @@ def producto_turno_view(page, state):
                                         ],
                                         alignment=ft.MainAxisAlignment.CENTER,
                                         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                        spacing=8,  # Reducir el espacio entre los elementos
                                     ),
-                                    padding=20,
+                                    padding=10,  # Reducir el padding
                                     alignment=ft.alignment.center,
-                                    width=400  # Ajustar el ancho del Container
+                                    width=500  # Mantener el ancho del Container
                                 ),
                                 elevation=2,
-                                width=400  # Ajustar el ancho del Card
+                                width=500  # Mantener el ancho del Card
                             ),
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
