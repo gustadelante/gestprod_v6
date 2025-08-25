@@ -36,13 +36,32 @@ def get_writable_path(filename):
 
 def calcular_metros(peso, gramaje, ancho):
     try:
+        # Convertir a string primero para asegurar que podemos manipular el valor
+        if not isinstance(peso, str):
+            peso = str(peso)
+        if not isinstance(gramaje, str):
+            gramaje = str(gramaje)
+        if not isinstance(ancho, str):
+            ancho = str(ancho)
+            
+        # Reemplazar comas por puntos para manejar formato español
+        peso = peso.replace(',', '.')
+        gramaje = gramaje.replace(',', '.')
+        ancho = ancho.replace(',', '.')
+        
+        # Convertir a float
         peso = float(peso)
         gramaje = float(gramaje)
         ancho = float(ancho)
+        
+        # Calcular metros
         metros = (100000 * peso) / (gramaje * ancho)
         return round(metros)
     except ValueError as e:
         print(f"Error al calcular metros: {e}")
+        return None
+    except Exception as e:
+        print(f"Error inesperado al calcular metros: {e}")
         return None
 
 def genera_qr(bobina):
@@ -62,6 +81,11 @@ def genera_qr(bobina):
 def imprimir_y_guardar(db_conn, nueva_bobina):
     init_db()
     resultado = {"mensaje": "Operación completada", "exito": True}
+    
+    # Actualizar la fecha con la fecha y hora del sistema
+    from datetime import datetime
+    fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M")
+    nueva_bobina.fecha = fecha_actual
     
     # Enviar los datos a la impresora
     from reportlab.lib.pagesizes import A4
@@ -134,7 +158,7 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
             img_path = None
         
         # Definir las coordenadas y el tamaño de la letra
-        y = height - 281 + 28.35  # Coordenada Y inicial (subida 1 cm = 28.35 points)
+        y = height - 281 + 14.175  # Coordenada Y inicial (bajada 0.5 cm = 14.175 points)
         line_height = 110  # Altura de cada línea
         x_left = 72  # Coordenada X para la primera columna
         x_right = 300 + 28.35  # Coordenada X para la segunda columna (1 cm = 28.35 points)
@@ -142,36 +166,38 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
         # Primera fila: ancho y diámetro (bajada 0.5 cm = 14.175 points)
         # Usar técnica de trazo extra grueso
         c.setFont("Helvetica", 57)
-        c.drawString(x_left - 28.35, y - 14.175 - 28.35 + 14.175 + 8.505, f"{nueva_bobina.ancho}")  # Trazo normal, bajado 0,2 cm
+        c.drawString(x_left - 28.35, y - 14.175 - 28.35 + 14.175 + 8.505 - 28.35 + 14.175, f"{nueva_bobina.ancho}")  # Trazo normal, bajado 0,7 cm
         # Línea eliminada - era una duplicación
         c.setFont("Helvetica", 57)
-        c.drawString(x_right, y - 14.175 - 28.35 + 14.175 + 8.505, f"{nueva_bobina.diametro}")  # Trazo normal, bajado 0,2 cm
+        c.drawString(x_right, y - 14.175 - 28.35 + 14.175 + 8.505 - 28.35 + 14.175, f"{nueva_bobina.diametro}")  # Trazo normal, bajado 0,7 cm
         
         # Segunda fila: gramaje y peso (posición original)
         y -= line_height
         # Usar técnica de trazo extra grueso
         c.setFont("Helvetica", 57)
-        c.drawString(x_left - 28.35, y - 28.35 + 14.175, f"{nueva_bobina.gramaje}")  # Trazo normal, bajado 0,5 cm
-        draw_bold_text(c, x_right, y - 28.35 + 14.175, f"{nueva_bobina.peso}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 0,5 cm
+        c.drawString(x_left - 28.35, y - 28.35 + 14.175 - 28.35 + 14.175, f"{nueva_bobina.gramaje}")  # Trazo normal, bajado 1 cm
+        draw_bold_text(c, x_right, y - 28.35 + 14.175 - 28.35 + 14.175, f"{nueva_bobina.peso}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 1 cm
         y -= line_height
         # Usar técnica de trazo extra grueso
-        draw_bold_text(c, x_left - 28.35, y - 28.35 + 14.175, f"{nueva_bobina.bobina_nro}/{nueva_bobina.sec}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Movido 1 cm a la izquierda, bajado 0,5 cm
-        draw_bold_text(c, x_right, y - 28.35 + 14.175, f"{nueva_bobina.orden_fab}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 0,5 cm
+        draw_bold_text(c, x_left - 28.35, y - 28.35 + 14.175 - 28.35 + 14.175, f"{nueva_bobina.bobina_nro}/{nueva_bobina.sec}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Movido 1 cm a la izquierda, bajado 1 cm
+        draw_bold_text(c, x_right, y - 28.35 + 14.175 - 28.35 + 14.175, f"{nueva_bobina.orden_fab}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 1 cm
         y -= line_height
-        # Subir 1 cm y bajar 0.5 cm la fila de fecha/turno
+        # Ajustar la fila de fecha/turno (bajada 1 cm adicional = 28.35 puntos)
         c.setFont("Helvetica", 26)
-        c.drawString(x_left, y + 28.35 - 14.175, f"{nueva_bobina.fecha}")
+        c.drawString(x_left, y - 14.175 + 14.175 - 28.35, f"{nueva_bobina.fecha}")
         # Usar técnica de trazo extra grueso para el turno
         c.setFont("Helvetica", 40)
-        c.drawString(x_right, y + 28.35 - 14.175, f"{nueva_bobina.turno}")  # Trazo normal
+        c.drawString(x_right, y - 14.175 + 14.175 - 28.35, f"{nueva_bobina.turno}")  # Bajado 1 cm adicional
         y -= line_height
         y -= line_height        
-        c.setFont("Helvetica", 18)    
-        c.drawString((x_left + 99.22 + 28.35), (y+3) + 28.35 + 28.35 - 14.175, f"{metros} Metros Lineales Aprox.")  # Bajado 0.5 cm (14.175 points)
+        c.setFont("Helvetica", 18)
+        # Solo imprimir la leyenda de metros lineales si el valor es mayor que 0
+        if metros is not None and metros > 0:
+            c.drawString((x_left + 99.22 + 28.35), (y+3) + 28.35 - 14.175 + 14.175 - 28.35, f"{metros} Metros Lineales Aprox.")  # Bajado 2 cm
         
-        # Dibujar QR si existe (también subido 1 cm)
+        # Dibujar QR si existe (bajado 1.5 cm en total)
         if img_path and os.path.exists(img_path):
-            c.drawImage(img_path, (x_left + 369.22), (y+72) + 28.35, width=144, height=144, mask='auto')
+            c.drawImage(img_path, (x_left + 369.22), (y+72) + 14.175 - 28.35, width=144, height=144, mask='auto')
         
         c.showPage()
         c.save()

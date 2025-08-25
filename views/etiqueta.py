@@ -4,6 +4,7 @@ from datetime import datetime
 from utils.imprimir import imprimir_y_guardar
 from data.producto import bobina
 import time
+import asyncio
 
 def etiqueta_view(page, state, db_conn):
 
@@ -334,6 +335,8 @@ def etiqueta_view(page, state, db_conn):
                 calidad.value)
             # Llamada a la función para imprimir y guardar
             handle_imprimir_y_guardar(nueva_bobina, sec)
+            # Iniciar cooldown SOLO cuando la impresión/guardado fue ejecutada
+            start_cooldown()
 
         page.update()    
 
@@ -356,6 +359,36 @@ def etiqueta_view(page, state, db_conn):
         )
     )
 
+    # Cooldown de impresión: 10 segundos con contador regresivo (sin ft.Timer)
+    cooldown_label = ft.Text(value="", size=16, color=ft.colors.RED_900, text_align=ft.TextAlign.CENTER)
+    remaining = {"value": 0}
+
+    async def cooldown_loop():
+        while remaining["value"] > 0:
+            await asyncio.sleep(1)
+            remaining["value"] -= 1
+            if remaining["value"] <= 0:
+                imprimir_button.disabled = False
+                imprimir_button.text = "IMPRIMIR"
+                cooldown_label.value = ""
+            else:
+                imprimir_button.text = f"IMPRIMIR ({remaining['value']})"
+                cooldown_label.value = f"Disponible en {remaining['value']} s"
+            imprimir_button.update()
+            cooldown_label.update()
+            page.update()
+
+    def start_cooldown():
+        remaining["value"] = 15
+        imprimir_button.disabled = True
+        imprimir_button.text = f"IMPRIMIR ({remaining['value']})"
+        cooldown_label.value = f"Disponible en {remaining['value']} s"
+        imprimir_button.update()
+        cooldown_label.update()
+        page.run_task(cooldown_loop)
+        page.update()
+
+
     responsive_grid = ft.GridView(
         expand=True,
         max_extent=400,
@@ -376,9 +409,17 @@ def etiqueta_view(page, state, db_conn):
             ft.Container(content=fecha_container, alignment=ft.alignment.center),
             ft.Container(content=turno, alignment=ft.alignment.center),
             ft.Container(content=calidad, alignment=ft.alignment.center),
-            ft.Container(content=imprimir_button, alignment=ft.alignment.center)
+            ft.Container(
+                content=ft.Column([
+                    imprimir_button,
+                    cooldown_label,
+                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                   alignment=ft.MainAxisAlignment.CENTER),
+                alignment=ft.alignment.center,
+            )
         ],
     )
+
 
     titulo = ft.Row(
         controls=[
