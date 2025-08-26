@@ -35,7 +35,9 @@ def etiqueta_view(page, state, db_conn):
 
     # Validar contenido de los text field
     def validate_float(e):
-        if not e.control.value.replace(",", "", 1).isdigit() or len(e.control.value) > 5:
+        # Permitir ingreso con coma o punto mientras escribe
+        val = e.control.value or ""
+        if not val.replace(",", "", 1).replace(".", "", 1).isdigit() or len(val) > 5:
             e.control.error_text = "Número no válido o demasiado largo"
         else:
             e.control.error_text = ""
@@ -46,7 +48,27 @@ def etiqueta_view(page, state, db_conn):
                 fecha_container.update()
         page.update()
 
+    # Normalizar el separador decimal al perder el foco (solo ANCHO)
+    def normalize_decimal_comma(e):
+        try:
+            if e.control.value and "." in e.control.value:
+                e.control.value = e.control.value.replace(".", ",")
+                e.control.update()
+                page.update()
+        except Exception:
+            pass
+
     def validate_int(e):
+        # Solo para Bobina Nº: limitar a 5 dígitos forzando el recorte
+        if e.control == bobina_num and e.control.value and len(e.control.value) > 5:
+            e.control.value = e.control.value[:5]
+            e.control.update()
+
+        # Si cambia Bobina Nº, reiniciar SEC a "1"
+        if e.control == bobina_num:
+            sec.value = "1"
+            sec.update()
+
         if not e.control.value.isdigit() or len(e.control.value) > 5:
             e.control.error_text = "Número no válido o demasiado largo"
         else:
@@ -101,11 +123,34 @@ def etiqueta_view(page, state, db_conn):
         read_only=True,
     )
 
-    ancho = create_text_field("ANCHO", validate_float, page.theme_mode)    
+    ancho = create_text_field("ANCHO", validate_float, page.theme_mode)
+    # Normalizar a coma cuando sale del campo
+    ancho.on_blur = normalize_decimal_comma
     diametro = create_text_field("DIÁMETRO", validate_int, page.theme_mode)
     gramaje = create_text_field("GRAMAJE", validate_int, page.theme_mode)
     peso = create_text_field("PESO", validate_float, page.theme_mode)
     bobina_num = create_text_field("BOBINA Nº", validate_int, page.theme_mode)
+    # Limitar largo a 5 dígitos en el control (si la versión de Flet lo soporta)
+    try:
+        bobina_num.max_length = 5
+    except Exception:
+        pass
+    
+    # Manejador específico para Bobina Nº: solo dígitos, máximo 5, y resetea SEC
+    def on_bobina_num_change(e):
+        v = e.control.value or ""
+        v = "".join(ch for ch in v if ch.isdigit())
+        if len(v) > 5:
+            v = v[:5]
+        if v != e.control.value:
+            e.control.value = v
+            e.control.update()
+        # Reiniciar SEC a 1 si Bobina cambia
+        sec.value = "1"
+        sec.update()
+        page.update()
+    # Sobrescribir el on_change para aplicar la lógica específica
+    bobina_num.on_change = on_bobina_num_change
     sec = create_text_field("SEC", validate_single_digit, page.theme_mode)
     orden_fab = create_text_field("ORDEN FAB", validate_int, page.theme_mode)
     now = datetime.now()
@@ -159,19 +204,7 @@ def etiqueta_view(page, state, db_conn):
         page.update()
 
 
-    # Modificar el campo Bobina Nº para agregar el evento on_change
-    bobina_num = create_text_field(
-    "BOBINA Nº",
-    lambda e: on_bobina_num_change(e),  # Llamar a la función cuando cambie el valor
-    page.theme_mode
-    )
-
-    # Función para manejar el cambio en el campo Bobina Nº
-    def on_bobina_num_change(e):
-        # Cambiar el valor del campo Sec a 1
-        sec.value = "1"
-        sec.update()  # Actualizar el campo Sec para reflejar el cambio
-        page.update()
+    
 
 
 
@@ -303,7 +336,7 @@ def etiqueta_view(page, state, db_conn):
                 "Bobina Nro": bobina_num.value,
                 "Sec": sec.value,
                 "Orden de Fabricación": orden_fab.value,
-                "Fecha y Hora": fecha_str,
+                "Fecha y Hora": fecha_container.value,
                 "Turno": turno.value,
                 "Calidad": calidad.value
             }
@@ -315,7 +348,7 @@ def etiqueta_view(page, state, db_conn):
                 bobina_num.value,
                 sec.value,
                 orden_fab.value,
-                fecha_str,
+                fecha_container.value,
                 turno.value,
                 calidad.value
             }            
@@ -330,7 +363,7 @@ def etiqueta_view(page, state, db_conn):
                 bobina_num.value,
                 sec.value,
                 orden_fab.value,
-                fecha_str,
+                fecha_container.value,
                 turno.value,
                 calidad.value)
             # Llamada a la función para imprimir y guardar

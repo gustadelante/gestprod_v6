@@ -166,21 +166,21 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
         # Primera fila: ancho y diámetro (bajada 0.5 cm = 14.175 points)
         # Usar técnica de trazo extra grueso
         c.setFont("Helvetica", 57)
-        c.drawString(x_left - 28.35, y - 14.175 - 28.35 + 14.175 + 8.505 - 28.35 + 14.175, f"{nueva_bobina.ancho}")  # Trazo normal, bajado 0,7 cm
+        c.drawString(x_left - 28.35, y - 34.02, f"{nueva_bobina.ancho}")  # Trazo normal, bajado 0,7 cm
         # Línea eliminada - era una duplicación
         c.setFont("Helvetica", 57)
-        c.drawString(x_right, y - 14.175 - 28.35 + 14.175 + 8.505 - 28.35 + 14.175, f"{nueva_bobina.diametro}")  # Trazo normal, bajado 0,7 cm
+        c.drawString(x_right, y - 34.02, f"{nueva_bobina.diametro}")  # Trazo normal, bajado 0,7 cm
         
         # Segunda fila: gramaje y peso (posición original)
         y -= line_height
         # Usar técnica de trazo extra grueso
         c.setFont("Helvetica", 57)
-        c.drawString(x_left - 28.35, y - 28.35 + 14.175 - 28.35 + 14.175, f"{nueva_bobina.gramaje}")  # Trazo normal, bajado 1 cm
-        draw_bold_text(c, x_right, y - 28.35 + 14.175 - 28.35 + 14.175, f"{nueva_bobina.peso}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 1 cm
+        c.drawString(x_left - 28.35, y - 28.35, f"{nueva_bobina.gramaje}")  # Trazo normal, bajado 1 cm
+        draw_bold_text(c, x_right, y - 28.35, f"{nueva_bobina.peso}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 1 cm
         y -= line_height
         # Usar técnica de trazo extra grueso
-        draw_bold_text(c, x_left - 28.35, y - 28.35 + 14.175 - 28.35 + 14.175, f"{nueva_bobina.bobina_nro}/{nueva_bobina.sec}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Movido 1 cm a la izquierda, bajado 1 cm
-        draw_bold_text(c, x_right, y - 28.35 + 14.175 - 28.35 + 14.175, f"{nueva_bobina.orden_fab}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 1 cm
+        draw_bold_text(c, x_left - 28.35, y - 28.35, f"{nueva_bobina.bobina_nro}/{nueva_bobina.sec}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Movido 1 cm a la izquierda, bajado 1 cm
+        draw_bold_text(c, x_right, y - 28.35, f"{nueva_bobina.orden_fab}", fuente_gruesa, 57, offset=0.5, char_spacing=1.25)  # Bajado 1 cm
         y -= line_height
         # Ajustar la fila de fecha/turno (bajada 1 cm adicional = 28.35 puntos)
         c.setFont("Helvetica", 26)
@@ -190,10 +190,20 @@ def imprimir_y_guardar(db_conn, nueva_bobina):
         c.drawString(x_right, y - 14.175 + 14.175 - 28.35, f"{nueva_bobina.turno}")  # Bajado 1 cm adicional
         y -= line_height
         y -= line_height        
-        c.setFont("Helvetica", 18)
+        c.setFont("Helvetica", 16)
         # Solo imprimir la leyenda de metros lineales si el valor es mayor que 0
         if metros is not None and metros > 0:
-            c.drawString((x_left + 99.22 + 28.35), (y+3) + 28.35 - 14.175 + 14.175 - 28.35, f"{metros} Metros Lineales Aprox.")  # Bajado 2 cm
+            c.drawString(x_left + 178.6, y + 3, f"{metros} Metros Lineales Aprox.")  # +0.3 cm a la derecha
+        
+        # Imprimir debajo la calidad (solo lo que está a la derecha del guion)
+        # Ej.: "01-ONDA LINER" -> "ONDA LINER"
+        try:
+            calidad_txt = nueva_bobina.calidad.split('-', 1)[1].strip() if '-' in nueva_bobina.calidad else nueva_bobina.calidad
+        except Exception:
+            calidad_txt = str(getattr(nueva_bobina, 'calidad', ''))
+        c.setFont("Helvetica", 16)
+        # Ubicar a la izquierda de la leyenda de metros en la misma fila (+0.3 cm a la derecha)
+        c.drawString(x_left + 51.03, y + 3, calidad_txt)
         
         # Dibujar QR si existe (bajado 1.5 cm en total)
         if img_path and os.path.exists(img_path):
